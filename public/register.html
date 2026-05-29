@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign Up — ShopZone</title>
+  <link rel="stylesheet" href="/css/main.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Syne:wght@700;800&display=swap" rel="stylesheet"/>
+</head>
+<body class="auth-page">
+
+<div class="auth-container">
+  <a href="/" class="logo auth-logo">Shop<span>Zone</span></a>
+  <div class="auth-card">
+    <div class="auth-header">
+      <h2>Create Account</h2>
+      <p>Join thousands of happy customers</p>
+    </div>
+    <div class="auth-error" id="auth-error" style="display:none"></div>
+    <div class="auth-form">
+      <div class="form-group">
+        <label>Full Name</label>
+        <div class="input-wrap">
+          <i class="fa-solid fa-user"></i>
+          <input type="text" id="name" placeholder="Your full name"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email Address</label>
+        <div class="input-wrap">
+          <i class="fa-solid fa-envelope"></i>
+          <input type="email" id="email" placeholder="your@email.com"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <div class="input-wrap">
+          <i class="fa-solid fa-lock"></i>
+          <input type="password" id="password" placeholder="Min 6 characters"/>
+          <button type="button" class="toggle-pass" onclick="togglePass('password')">
+            <i class="fa-solid fa-eye"></i>
+          </button>
+        </div>
+      </div>
+      <button class="auth-submit-btn" onclick="doRegister()" id="submit-btn">
+        Create Account <i class="fa-solid fa-arrow-right"></i>
+      </button>
+    </div>
+    <div class="auth-footer">
+      Already have an account? <a href="/login.html">Login</a>
+    </div>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script src="/js/auth-page.js"></script>
+<script>
+async function doRegister() {
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const btn = document.getElementById('submit-btn');
+  const errEl = document.getElementById('auth-error');
+
+  if (!name || !email || !password) return showError('Please fill all fields');
+  if (password.length < 6) return showError('Password must be at least 6 characters');
+
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creating account...';
+  btn.disabled = true;
+  errEl.style.display = 'none';
+
+  const res = await api.register(name, email, password);
+  if (res.error) {
+    showError(res.error);
+    btn.innerHTML = 'Create Account <i class="fa-solid fa-arrow-right"></i>';
+    btn.disabled = false;
+  } else {
+    localStorage.setItem('token', res.token);
+    localStorage.setItem('user', JSON.stringify(res.user));
+    window.location.href = '/';
+  }
+}
+
+function showError(msg) {
+  const el = document.getElementById('auth-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Enter') doRegister(); });
+</script>
+</body>
+</html>
